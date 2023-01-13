@@ -9,10 +9,10 @@ import (
 )
 
 // DEBOUNCE_TIME controls how long to ignore subsequent input
-const DEBOUNCE_TIME = time.Millisecond * 500
+const DEBOUNCE_TIME = 500 * time.Millisecond
 
 // Define the amount of time to determine a held down switch
-const SWITCH_HOLD_TIME = time.Millisecond * 500
+const SWITCH_HOLD_TIME = 500 * time.Millisecond
 
 // Control code assignments
 // The code range 20-31 is used because it is undefined by the MIDI standard
@@ -36,7 +36,7 @@ const (
 	MIDI_CC31
 )
 
-type MidiControlCode uint8
+type ControlCodes uint8
 
 // Common value assingments for control codes
 const (
@@ -61,41 +61,59 @@ type ControllerInput struct {
 	SendControlCodes func(bool)
 }
 
-var tksel ControllerInput = ControllerInput{
-	Pin:        machine.GP0,
-	PinMode:    machine.PinInputPulldown,
-	SwitchMode: InputType(SWITCH_HOLD),
-	SendControlCodes: func(hold bool) {
-		m := midi.New()
-		if hold {
-			m.SendCC(0, 0, MIDI_CC22, MIDI_VALUE_ON)
-			time.Sleep(5 * time.Millisecond)
-			m.SendCC(0, 0, MIDI_CC21, MIDI_VALUE_ON)
-		} else {
-			m.SendCC(0, 0, MIDI_CC22, MIDI_VALUE_ON)
-			time.Sleep(5 * time.Millisecond)
-			m.SendCC(0, 0, MIDI_CC20, MIDI_VALUE_ON)
-		}
-	},
+const PINS_IN_USE = 3
+
+func initControllerInputs() [PINS_IN_USE]ControllerInput {
+	var playstop ControllerInput = ControllerInput{
+		Pin:        machine.GP1,
+		PinMode:    machine.PinInputPulldown,
+		SwitchMode: InputType(SWITCH_HOLD),
+		SendControlCodes: func(hold bool) {
+			if hold {
+				sendMidiCode([]uint8{MIDI_CC20})
+			} else {
+				sendMidiCode([]uint8{MIDI_CC21})
+			}
+		},
+	}
+
+	var record ControllerInput = ControllerInput{
+		Pin:        machine.GP1,
+		PinMode:    machine.PinInputPulldown,
+		SwitchMode: InputType(SWITCH_HOLD),
+		SendControlCodes: func(hold bool) {
+			if hold {
+				sendMidiCode([]uint8{MIDI_CC22})
+			} else {
+				sendMidiCode([]uint8{MIDI_CC23})
+			}
+		},
+	}
+
+	var tksel ControllerInput = ControllerInput{
+		Pin:        machine.GP0,
+		PinMode:    machine.PinInputPulldown,
+		SwitchMode: InputType(SWITCH_HOLD),
+		SendControlCodes: func(hold bool) {
+			if hold {
+				sendMidiCode([]uint8{MIDI_CC22, MIDI_CC21})
+			} else {
+				sendMidiCode([]uint8{MIDI_CC22, MIDI_CC20})
+			}
+		},
+	}
+
+	return [PINS_IN_USE]ControllerInput{playstop, tksel, record}
 }
 
-var playstop ControllerInput = ControllerInput{
-	Pin:        machine.GP1,
-	PinMode:    machine.PinInputPulldown,
-	SwitchMode: InputType(SWITCH_HOLD),
-	SendControlCodes: func(hold bool) {
-		m := midi.New()
-		if hold {
-			m.SendCC(0, 0, MIDI_CC24, MIDI_VALUE_ON)
-		} else {
-			m.SendCC(0, 0, MIDI_CC23, MIDI_VALUE_ON)
-		}
-	},
+func sendMidiCode(c []uint8) {
+	m := midi.New()
+	for _, code := range c {
+		m.SendCC(0, 0, code, MIDI_VALUE_ON)
+		time.Sleep(1 * time.Millisecond)
+	}
+
 }
-
-const PINS_IN_USE = 2
-
-var CtrlInputs [PINS_IN_USE]ControllerInput = [PINS_IN_USE]ControllerInput{tksel, playstop}
 
 func switchIsHeld(pin machine.Pin) bool {
 	trigger := time.Now()
@@ -114,17 +132,18 @@ func main() {
 	led := machine.LED
 	led.Configure(machine.PinConfig{Mode: machine.PinOutput})
 
-	for _, inp := range CtrlInputs {
+	ctrlInputs := initControllerInputs()
+
+	for _, inp := range ctrlInputs {
 		inp.Pin.Configure(machine.PinConfig{Mode: inp.PinMode})
 	}
 
 	for {
 		time.Sleep(5 * time.Millisecond)
 
-		for _, inp := range CtrlInputs {
+		for _, inp := range ctrlInputs {
 
 			if inp.Pin.Get() {
-
 				switch inp.SwitchMode {
 
 				case InputType(SWITCH_HOLD):
