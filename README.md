@@ -22,15 +22,15 @@ I'm building this fully aware TinyGo is less mature and may be unstable compared
 
 |Control Codes  |Function           |Switch|
 |---------------|-------------------|------ |  
-|20 (0x14)      |Play               |1      |
-|21 (0x15)      |Stop               |1 Hold |
-|22 (0x16)      |Record             |2      | 
-|23 (0x17)      |Delete Recording   |2 Hold |
-|24 (0x18)      |Next Track         |3      |
-|25 (0x19)      |Previous Track     |3 Hold |
-|26 (0x1a)      |Mute Track         |4      |
-|27 (0x1b)      |Solo Track         |4 Hold |
-|28 (0x1c)      |Next Scene         |5      |
-|29 (0x1d)      |Previous Scene     |5 Hold |
-|30 (0x1e)      |Tap Tempo          |6      |
+|20 (0x14)      |Next Track         |1      |
+|21 (0x15)      |Previous Track     |1 Hold |
+|22 (0x16)      |Mute Selected Track|2      | 
+|23 (0x17)      |Solo Selected Track|2 Hold |
+|24 (0x18)      |Tap Tempo          |3      |
+|25 (0x19)      |Unassigned         |       | 
+|26 (0x1a)      |Play               |4      |
+|27 (0x1b)      |Stop               |4 Hold |
+|28 (0x1c)      |Record             |5      |
+|29 (0x1d)      |Delete Recording   |5 Hold |
+|30 (0x1e)      |Arm Record         |6      |
 
