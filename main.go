@@ -14,6 +14,9 @@ const DEBOUNCE_TIME = 500 * time.Millisecond
 // Define the amount of time to determine a held down switch
 const SWITCH_HOLD_TIME = 500 * time.Millisecond
 
+// Default sleep duration
+const SLEEP_5MS = 5 * time.Millisecond
+
 // Control code assignments
 // The code range 20-31 is used because it is undefined by the MIDI standard
 const (
@@ -21,18 +24,25 @@ const (
 	MIDI_CC20 uint8 = iota + 0x14
 	// Previous Track
 	MIDI_CC21
-	// Arm Recording
+	// Mute Track
 	MIDI_CC22
-	// Play
+	// Solo Track
 	MIDI_CC23
-	// Stop
+	// Tap Tempo
 	MIDI_CC24
+	// Unassigned
 	MIDI_CC25
+	// Play
 	MIDI_CC26
+	// Stop
 	MIDI_CC27
+	// Record
 	MIDI_CC28
+	// Delete Recording
 	MIDI_CC29
+	// Arm Recording
 	MIDI_CC30
+	// Unassigned
 	MIDI_CC31
 )
 
@@ -40,10 +50,8 @@ type ControlCodes uint8
 
 // Common value assingments for control codes
 const (
-	MIDI_VALUE_OFF uint8 = 0x00
-	MIDI_VALUE_ON  uint8 = 0x7f
-	// MIDPOINT_OFF uint8 = 0x3f
-	// MIDPOINT_ON  uint8 = 0x40
+	// MIDI_VALUE_OFF uint8 = 0x00
+	MIDI_VALUE_ON uint8 = 0x7f
 )
 
 const (
@@ -61,34 +69,9 @@ type ControllerInput struct {
 	SendControlCodes func(bool)
 }
 
-const PINS_IN_USE = 3
+const PINS_IN_USE = 6
 
 func initControllerInputs() [PINS_IN_USE]ControllerInput {
-	var playstop ControllerInput = ControllerInput{
-		Pin:        machine.GP1,
-		PinMode:    machine.PinInputPulldown,
-		SwitchMode: InputType(SWITCH_HOLD),
-		SendControlCodes: func(hold bool) {
-			if hold {
-				sendMidiCode([]uint8{MIDI_CC20})
-			} else {
-				sendMidiCode([]uint8{MIDI_CC21})
-			}
-		},
-	}
-
-	var record ControllerInput = ControllerInput{
-		Pin:        machine.GP1,
-		PinMode:    machine.PinInputPulldown,
-		SwitchMode: InputType(SWITCH_HOLD),
-		SendControlCodes: func(hold bool) {
-			if hold {
-				sendMidiCode([]uint8{MIDI_CC22})
-			} else {
-				sendMidiCode([]uint8{MIDI_CC23})
-			}
-		},
-	}
 
 	var tksel ControllerInput = ControllerInput{
 		Pin:        machine.GP0,
@@ -96,21 +79,82 @@ func initControllerInputs() [PINS_IN_USE]ControllerInput {
 		SwitchMode: InputType(SWITCH_HOLD),
 		SendControlCodes: func(hold bool) {
 			if hold {
-				sendMidiCode([]uint8{MIDI_CC22, MIDI_CC21})
+				sendMidiCode([]uint8{MIDI_CC21})
 			} else {
-				sendMidiCode([]uint8{MIDI_CC22, MIDI_CC20})
+				sendMidiCode([]uint8{MIDI_CC20})
 			}
 		},
 	}
 
-	return [PINS_IN_USE]ControllerInput{playstop, tksel, record}
+	var muteSolo ControllerInput = ControllerInput{
+		Pin:        machine.GP1,
+		PinMode:    machine.PinInputPulldown,
+		SwitchMode: InputType(SWITCH_HOLD),
+		SendControlCodes: func(hold bool) {
+			if hold {
+				sendMidiCode([]uint8{MIDI_CC23})
+			} else {
+				sendMidiCode([]uint8{MIDI_CC22})
+			}
+		},
+	}
+
+	var tapTempo ControllerInput = ControllerInput{
+		Pin:        machine.GP2,
+		PinMode:    machine.PinInputPulldown,
+		SwitchMode: InputType(SWITCH_ONESHOT),
+		SendControlCodes: func(hold bool) {
+			fmt.Println("Sending CC24")
+			sendMidiCode([]uint8{MIDI_CC24})
+			fmt.Println("Sent CC24")
+		},
+	}
+
+	var playstop ControllerInput = ControllerInput{
+		Pin:        machine.GP3,
+		PinMode:    machine.PinInputPulldown,
+		SwitchMode: InputType(SWITCH_HOLD),
+		SendControlCodes: func(hold bool) {
+			if hold {
+				sendMidiCode([]uint8{MIDI_CC27})
+			} else {
+				sendMidiCode([]uint8{MIDI_CC26})
+			}
+		},
+	}
+
+	var record ControllerInput = ControllerInput{
+		Pin:        machine.GP4,
+		PinMode:    machine.PinInputPulldown,
+		SwitchMode: InputType(SWITCH_HOLD),
+		SendControlCodes: func(hold bool) {
+			if hold {
+				sendMidiCode([]uint8{MIDI_CC29})
+			} else {
+				sendMidiCode([]uint8{MIDI_CC28})
+			}
+		},
+	}
+
+	var armRecord ControllerInput = ControllerInput{
+		Pin:        machine.GP5,
+		PinMode:    machine.PinInputPulldown,
+		SwitchMode: InputType(SWITCH_ONESHOT),
+		SendControlCodes: func(hold bool) {
+			sendMidiCode([]uint8{MIDI_CC30})
+		},
+	}
+
+	return [PINS_IN_USE]ControllerInput{
+		tksel, muteSolo, tapTempo, playstop, record, armRecord,
+	}
 }
 
 func sendMidiCode(c []uint8) {
 	m := midi.New()
 	for _, code := range c {
 		m.SendCC(0, 0, code, MIDI_VALUE_ON)
-		time.Sleep(1 * time.Millisecond)
+		time.Sleep(SLEEP_5MS)
 	}
 
 }
@@ -139,7 +183,7 @@ func main() {
 	}
 
 	for {
-		time.Sleep(5 * time.Millisecond)
+		time.Sleep(SLEEP_5MS)
 
 		for _, inp := range ctrlInputs {
 
@@ -159,10 +203,11 @@ func main() {
 					}
 
 				case InputType(SWITCH_ONESHOT):
-					fmt.Println("oneshot")
+					led.High()
+					inp.SendControlCodes(false)
+					led.Low()
 				}
 			}
 		}
 	}
-
 }
