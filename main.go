@@ -105,7 +105,7 @@ func initControllerInputs(bankOffset uint8) []ControllerInput {
 		{
 			Pin:        machine.GP4,
 			PinMode:    machine.PinInputPulldown,
-			SwitchMode: InputType(SWITCH_HOLD),
+			SwitchMode: InputType(SWITCH_BANKSELECT),
 			SendControlCodes: func(hold bool) {
 				if hold {
 					sendMidiCode(START_CC + 9)
