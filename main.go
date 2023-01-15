@@ -25,18 +25,16 @@ const OB_LED = machine.LED
 // First Control Code defined
 const START_CC = uint8(20)
 
-type ControlCodes uint8
-
 // Common value assingment MIDI ON
 const MIDI_VALUE_ON uint8 = 0x7f
 
+type InputType uint8
+
 const (
-	SWITCH_ONESHOT uint8 = iota
+	SWITCH_ONESHOT InputType = iota
 	SWITCH_HOLD
 	SWITCH_BANKSELECT // Acts as a SWITCH_HOLD but designated for bank selection
 )
-
-type InputType uint8
 
 type ControllerInput struct {
 	Pin              machine.Pin
@@ -53,7 +51,7 @@ func initControllerInputs(bankOffset uint8) []ControllerInput {
 		{
 			Pin:        machine.GP0,
 			PinMode:    machine.PinInputPulldown,
-			SwitchMode: InputType(SWITCH_HOLD),
+			SwitchMode: SWITCH_HOLD,
 			SendControlCodes: func(hold bool) {
 				if hold {
 					sendMidiCode(START_CC + 1)
@@ -66,7 +64,7 @@ func initControllerInputs(bankOffset uint8) []ControllerInput {
 		{
 			Pin:        machine.GP1,
 			PinMode:    machine.PinInputPulldown,
-			SwitchMode: InputType(SWITCH_HOLD),
+			SwitchMode: SWITCH_HOLD,
 			SendControlCodes: func(hold bool) {
 				if hold {
 					sendMidiCode(START_CC + 3)
@@ -79,7 +77,7 @@ func initControllerInputs(bankOffset uint8) []ControllerInput {
 		{
 			Pin:        machine.GP2,
 			PinMode:    machine.PinInputPulldown,
-			SwitchMode: InputType(SWITCH_HOLD),
+			SwitchMode: SWITCH_HOLD,
 			SendControlCodes: func(hold bool) {
 				if hold {
 					sendMidiCode(START_CC + 5)
@@ -92,7 +90,7 @@ func initControllerInputs(bankOffset uint8) []ControllerInput {
 		{
 			Pin:        machine.GP3,
 			PinMode:    machine.PinInputPulldown,
-			SwitchMode: InputType(SWITCH_HOLD),
+			SwitchMode: SWITCH_HOLD,
 			SendControlCodes: func(hold bool) {
 				if hold {
 					sendMidiCode(START_CC + 7)
@@ -105,7 +103,7 @@ func initControllerInputs(bankOffset uint8) []ControllerInput {
 		{
 			Pin:        machine.GP4,
 			PinMode:    machine.PinInputPulldown,
-			SwitchMode: InputType(SWITCH_BANKSELECT),
+			SwitchMode: SWITCH_BANKSELECT,
 			SendControlCodes: func(hold bool) {
 				if hold {
 					sendMidiCode(START_CC + 9)
@@ -118,7 +116,7 @@ func initControllerInputs(bankOffset uint8) []ControllerInput {
 		{
 			Pin:        machine.GP5,
 			PinMode:    machine.PinInputPulldown,
-			SwitchMode: InputType(SWITCH_ONESHOT),
+			SwitchMode: SWITCH_ONESHOT,
 			SendControlCodes: func(hold bool) {
 				sendMidiCode(START_CC + 10)
 			},
@@ -172,21 +170,21 @@ func main() {
 
 			if inp.Pin.Get() {
 				switch inp.SwitchMode {
-				case InputType(SWITCH_BANKSELECT):
+				case SWITCH_BANKSELECT:
 					if switchIsHeld(inp.Pin) {
 						inputBank = selectBank(inputBank)
 						ctrlInputs = initControllerInputs(11 * inputBank)
 					} else {
 						inp.SendControlCodes(false)
 					}
-				case InputType(SWITCH_HOLD):
+				case SWITCH_HOLD:
 					if switchIsHeld(inp.Pin) {
 						inp.SendControlCodes(true)
 						time.Sleep(DEBOUNCE_TIME)
 					} else {
 						inp.SendControlCodes(false)
 					}
-				case InputType(SWITCH_ONESHOT):
+				case SWITCH_ONESHOT:
 					inp.SendControlCodes(false)
 				}
 			}
