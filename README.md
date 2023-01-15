@@ -41,7 +41,7 @@ Switch 6 is configured as SWITCH_ONESHOT to be used for tap tempo or any other f
 |25 (0x19)      |1                  |3 Hold | 
 |26 (0x1a)      |1                  |4      |
 |27 (0x1b)      |1                  |4 Hold |
-|28 (0x1c)      |1                  |5      |
+|N/A            |1                  |5      |
 |29 (0x1d)      |1                  |5 Hold |
 |30 (0x1e)      |1                  |6      |
 ---------------------------------------------
@@ -55,7 +55,7 @@ Switch 6 is configured as SWITCH_ONESHOT to be used for tap tempo or any other f
 |36 (0x19)      |2                  |3 Hold | 
 |37 (0x1a)      |2                  |4      |
 |38 (0x1b)      |2                  |4 Hold |
-|39 (0x1c)      |2                  |5      |
+|N/A            |2                  |5      |
 |40 (0x1d)      |2                  |5 Hold |
 |41 (0x1e)      |2                  |6      |
 ---------------------------------------------
@@ -69,7 +69,7 @@ Switch 6 is configured as SWITCH_ONESHOT to be used for tap tempo or any other f
 |47 (0x19)      |3                  |3 Hold | 
 |48 (0x1a)      |3                  |4      |
 |49 (0x1b)      |3                  |4 Hold |
-|50 (0x1c)      |3                  |5      |
+|N/A            |3                  |5      |
 |51 (0x1d)      |3                  |5 Hold |
 |52 (0x1e)      |3                  |6      |
 
