@@ -107,8 +107,6 @@ func initControllerInputs(bankOffset uint8) []ControllerInput {
 			SendControlCodes: func(hold bool) {
 				if hold {
 					sendMidiCode(START_CC + 9)
-				} else {
-					sendMidiCode(START_CC + 8)
 				}
 			},
 		},
@@ -172,10 +170,10 @@ func main() {
 				switch inp.SwitchMode {
 				case SWITCH_BANKSELECT:
 					if switchIsHeld(inp.Pin) {
+						inp.SendControlCodes(false)
+					} else {
 						inputBank = selectBank(inputBank)
 						ctrlInputs = initControllerInputs(11 * inputBank)
-					} else {
-						inp.SendControlCodes(false)
 					}
 				case SWITCH_HOLD:
 					if switchIsHeld(inp.Pin) {
