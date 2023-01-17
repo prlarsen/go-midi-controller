@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"machine"
@@ -137,13 +138,13 @@ func switchIsHeld(pin machine.Pin) bool {
 		if !pin.Get() {
 			return false
 		}
-		time.Sleep(5 * time.Millisecond)
+		time.Sleep(SLEEP_5MS)
 	}
 	return true
 }
 
 func selectBank(currentBank uint8) uint8 {
-	if currentBank == NUM_INPUT_BANKS {
+	if currentBank == NUM_INPUT_BANKS-1 {
 		return 0
 	} else {
 		return currentBank + 1
@@ -174,6 +175,9 @@ func main() {
 					} else {
 						inputBank = selectBank(inputBank)
 						ctrlInputs = initControllerInputs(11 * inputBank)
+						// Until I decide whether to use LED's or a LCD display
+						// Print bank number to console
+						fmt.Println("Bank: ", inputBank+1)
 					}
 				case SWITCH_HOLD:
 					if switchIsHeld(inp.Pin) {
