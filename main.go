@@ -6,6 +6,8 @@ import (
 
 	"machine"
 	"machine/usb/midi"
+
+	"tinygo.org/x/drivers/hd44780i2c"
 )
 
 // DEBOUNCE_TIME controls how long to ignore subsequent input
@@ -17,13 +19,12 @@ const SWITCH_HOLD_TIME = 500 * time.Millisecond
 // Default sleep duration
 const SLEEP_5MS = 5 * time.Millisecond
 
-// Number of Input Banks
 const NUM_INPUT_BANKS = 3
 
-// Setup onboard LED
 const OB_LED = machine.LED
 
 // First Control Code defined
+// Used as beginning index value
 const START_CC = uint8(20)
 
 // Common value assingment MIDI ON
@@ -131,6 +132,29 @@ func sendMidiCode(c uint8) {
 	OB_LED.Low()
 }
 
+func initDisplay() hd44780i2c.Device {
+	i2c := machine.I2C1
+	err := i2c.Configure(machine.I2CConfig{
+		SCL: machine.GP10,
+		SDA: machine.GP11,
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+	d := hd44780i2c.New(i2c, 0)
+	d.Configure(hd44780i2c.Config{
+		Width:  16,
+		Height: 2,
+	})
+	d.BacklightOn(true)
+	return d
+}
+
+func printd(d hd44780i2c.Device, s string) {
+	d.ClearDisplay()
+	d.Print([]byte(s))
+}
+
 func switchIsHeld(pin machine.Pin) bool {
 	trigger := time.Now()
 
@@ -152,6 +176,9 @@ func selectBank(currentBank uint8) uint8 {
 }
 
 func main() {
+	disp := initDisplay()
+	disp.Print([]byte("LARSEN RULES!\nBank: 1"))
+
 	// Configure onboard LED
 	OB_LED.Configure(machine.PinConfig{Mode: machine.PinOutput})
 	// Initialize controller inputs to first bank
@@ -163,6 +190,7 @@ func main() {
 	}
 
 	for {
+
 		time.Sleep(SLEEP_5MS)
 
 		for _, inp := range ctrlInputs {
@@ -175,9 +203,7 @@ func main() {
 					} else {
 						inputBank = selectBank(inputBank)
 						ctrlInputs = initControllerInputs(11 * inputBank)
-						// Until I decide whether to use LED's or a LCD display
-						// Print bank number to console
-						fmt.Println("Bank: ", inputBank+1)
+						printd(disp, fmt.Sprintf("Bank: %v", inputBank+1))
 					}
 				case SWITCH_HOLD:
 					if switchIsHeld(inp.Pin) {
