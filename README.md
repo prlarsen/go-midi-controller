@@ -19,6 +19,15 @@ What I'm thinking I need it to do:
 - Tap Tempo
 
 --------------------------
+### Parts/Materials
+- Raspberry Pi Pico
+- GeeekPi I2C 1602 LCD Display
+- Momentary FootSwitches
+- Aluminum Chassis
+- Dupont Cable Jumpers
+- Momentary Footswitches
+
+--------------------------
 ### **Switch Input Modes**
 
 Switches 1-4 are configured as SWITCH_HOLD which will send a different CC when the switch is pressed and when it is held
