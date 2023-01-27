@@ -47,3 +47,7 @@ fmt.println("Something happened")
 ```bash
 socat stdio /dev/ttyACM0
 ```
+
+EEPROM Storage
+We need to store the following information
+
