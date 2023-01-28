@@ -11,6 +11,11 @@ type Display struct {
 	*hd44780i2c.Device
 }
 
+func (d *Display) WriteOut(s string) {
+	d.ClearDisplay()
+	d.Print([]byte(s))
+}
+
 func initDisplay() *hd44780i2c.Device {
 	i2c := machine.I2C1
 	err := i2c.Configure(machine.I2CConfig{
@@ -32,16 +37,11 @@ func initDisplay() *hd44780i2c.Device {
 func formatDisplayText(b *SwitchBank) string {
 	outputstring := ""
 	for i, s := range *b {
-		if i == 2|5 {
+		if i == 2 || i == 5 {
 			outputstring += s.DisplayText[0:4]
 		} else {
 			outputstring += s.DisplayText[0:5] + " "
 		}
 	}
 	return outputstring
-}
-
-func (d *Display) WriteOut(s string) {
-	d.ClearDisplay()
-	d.Print([]byte(s))
 }
