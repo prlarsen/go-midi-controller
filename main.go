@@ -1,14 +1,9 @@
 package main
 
 import (
-	// "encoding/binary"
-
 	"time"
 
-	// Look at the tinyjson package for creating custom json marshaler
-
 	"machine"
-	// "tinygo.org/x/drivers/at24cx"
 )
 
 // DEBOUNCE_TIME controls how long to ignore subsequent input
@@ -19,12 +14,6 @@ const SWITCH_HOLD_TIME = 500 * time.Millisecond
 
 // Default sleep duration
 const SLEEP_5MS = 5 * time.Millisecond
-
-const OB_LED = machine.LED
-
-// Common value assingment MIDI ON
-const MIDI_VALUE_ON uint8 = 0x7f
-const MIDI_VALUE_OFF uint8 = 0x00
 
 func switchIsHeld(pin machine.Pin) bool {
 	trigger := time.Now()
@@ -38,29 +27,27 @@ func switchIsHeld(pin machine.Pin) bool {
 	return true
 }
 
-func selectBank(numOfBanks uint8, currentBank uint8, foward bool) uint8 {
-	if foward {
-		if currentBank == numOfBanks-1 {
-			return 0
-		} else {
-			return currentBank + 1
-		}
-	} else {
+func selectBank(numOfBanks uint8, currentBank uint8, reverse bool) uint8 {
+	if reverse {
 		if currentBank == 0 {
 			return numOfBanks - 1
 		} else {
 			return currentBank - 1
 		}
+	} else {
+		if currentBank == numOfBanks-1 {
+			return 0
+		} else {
+			return currentBank + 1
+		}
 	}
 }
 
 func main() {
-	OB_LED.Configure(machine.PinConfig{Mode: machine.PinOutput})
 	disp := Display{initDisplay()}
 	// eeprom := initEEPROM()
 
-	// Initialize controller inputs to first bank
-	inputBank := uint8(0)
+	inputBank := uint8(0) // Initialize controller inputs to first bank
 
 	ConfigureSwitchPins()
 
@@ -68,20 +55,22 @@ func main() {
 	numOfBanks := uint8(len(ctrlInputs))
 	bankSelect := SWITCHPINS[5]
 
-	disp.WriteOut(formatDisplayText(&ctrlInputs[inputBank]))
+	disp.WriteOut([]byte(formatDisplayText(ctrlInputs[inputBank], inputBank)))
 
 	for {
-
 		time.Sleep(SLEEP_5MS)
 
 		if bankSelect.Get() {
 			inputBank = selectBank(numOfBanks, inputBank, switchIsHeld(bankSelect))
+			disp.WriteOut([]byte(formatDisplayText(ctrlInputs[inputBank], inputBank)))
+			time.Sleep(DEBOUNCE_TIME)
 		}
 
 		for _, inp := range ctrlInputs[inputBank] {
 
 			if inp.Pin.Get() {
 				inp.sendControl()
+				time.Sleep(DEBOUNCE_TIME)
 			}
 		}
 	}
