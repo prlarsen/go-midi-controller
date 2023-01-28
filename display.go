@@ -3,9 +3,13 @@ package main
 import (
 	"fmt"
 	"machine"
+	"strings"
 
 	"tinygo.org/x/drivers/hd44780i2c"
 )
+
+const DISPWIDTH uint8 = 16
+const DISPHEIGHT uint8 = 2
 
 type Display struct {
 	*hd44780i2c.Device
@@ -27,21 +31,41 @@ func initDisplay() *hd44780i2c.Device {
 	}
 	d := hd44780i2c.New(i2c, 0)
 	d.Configure(hd44780i2c.Config{
-		Width:  16,
-		Height: 2,
+		Width:  DISPWIDTH,
+		Height: DISPHEIGHT,
 	})
 	d.BacklightOn(true)
 	return &d
 }
 
-func formatDisplayText(b *SwitchBank) string {
+func trimText(s string, max int) string {
+	if len(s) >= max {
+		return s[:max]
+	} else {
+		return s
+	}
+}
+
+// TODO: make this function more generic so that it will
+// compute the proper length and spacing of text based
+// on number of inputs and screen dimensions
+func formatDisplayText(b SwitchBank, banknum uint8) string {
 	outputstring := ""
-	for i, s := range *b {
-		if i == 2 || i == 5 {
-			outputstring += s.DisplayText[0:4]
+	for i := 3; i <= 5; i++ {
+		if i == 5 {
+			outputstring += fmt.Sprintf("BNK%d\n", banknum+1)
 		} else {
-			outputstring += s.DisplayText[0:5] + " "
+			t := trimText(b[i].DisplayText, 4)
+			padding := strings.Repeat(" ", 4-len(t))
+			outputstring += t + padding + "  "
 		}
 	}
+	for i := 0; i < 2; i++ {
+		t := trimText(b[i].DisplayText, 4)
+		padding := strings.Repeat(" ", 4-len(t))
+		outputstring += t + padding + "  "
+	}
+	t := trimText(b[2].DisplayText, 4)
+	outputstring += t
 	return outputstring
 }

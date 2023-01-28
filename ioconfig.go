@@ -2,6 +2,13 @@ package main
 
 import "machine"
 
+const BANKCFGINP uint8 = 5
+const NUMINPUTS = 6
+
+// Common value assingment MIDI ON
+const MIDI_VALUE_ON uint8 = 0x7f
+const MIDI_VALUE_OFF uint8 = 0x00
+
 var SWITCHPINS []machine.Pin = []machine.Pin{
 	machine.GP0, machine.GP1, machine.GP2, machine.GP3, machine.GP4, machine.GP5,
 }
@@ -20,7 +27,7 @@ func InitDefaultSwitchBanks() []SwitchBank {
 	return []SwitchBank{
 		// Bank 0
 		{
-			NewCtrlInput("PLAY", machine.GP0, &HoldSwitch{
+			NewCtrlInput("TKSL", machine.GP0, &HoldSwitch{
 				toggleA:      false,
 				midiValueA:   MIDI_VALUE_OFF,
 				controlCodeA: 20,
@@ -28,7 +35,7 @@ func InitDefaultSwitchBanks() []SwitchBank {
 				midiValueB:   MIDI_VALUE_OFF,
 				controlCodeB: 21,
 			}),
-			NewCtrlInput("TKSEL", machine.GP1, &HoldSwitch{
+			NewCtrlInput("REC", machine.GP1, &HoldSwitch{
 				toggleA:      false,
 				midiValueA:   MIDI_VALUE_OFF,
 				controlCodeA: 22,
@@ -36,7 +43,7 @@ func InitDefaultSwitchBanks() []SwitchBank {
 				midiValueB:   MIDI_VALUE_OFF,
 				controlCodeB: 23,
 			}),
-			NewCtrlInput("ARM", machine.GP2, &HoldSwitch{
+			NewCtrlInput("PLAY", machine.GP2, &HoldSwitch{
 				toggleA:      false,
 				midiValueA:   MIDI_VALUE_OFF,
 				controlCodeA: 24,
@@ -44,7 +51,7 @@ func InitDefaultSwitchBanks() []SwitchBank {
 				midiValueB:   MIDI_VALUE_OFF,
 				controlCodeB: 25,
 			}),
-			NewCtrlInput("REC", machine.GP3, &HoldSwitch{
+			NewCtrlInput("SOLO", machine.GP3, &HoldSwitch{
 				toggleA:      false,
 				midiValueA:   MIDI_VALUE_OFF,
 				controlCodeA: 24,
@@ -52,7 +59,7 @@ func InitDefaultSwitchBanks() []SwitchBank {
 				midiValueB:   MIDI_VALUE_OFF,
 				controlCodeB: 25,
 			}),
-			NewCtrlInput("TAP", machine.GP4, &OneShotSwitch{
+			NewCtrlInput("ARM", machine.GP4, &OneShotSwitch{
 				toggle:      false,
 				midiValue:   MIDI_VALUE_ON,
 				controlCode: 28,
@@ -60,27 +67,27 @@ func InitDefaultSwitchBanks() []SwitchBank {
 		},
 		// Bank 1
 		{
-			NewCtrlInput("DRIVE", machine.GP0, &OneShotSwitch{
+			NewCtrlInput("DRVE", machine.GP0, &OneShotSwitch{
 				toggle:      true,
 				midiValue:   MIDI_VALUE_OFF,
 				controlCode: 30,
 			}),
-			NewCtrlInput("DELAY", machine.GP1, &OneShotSwitch{
+			NewCtrlInput("DLAY", machine.GP1, &OneShotSwitch{
 				toggle:      true,
 				midiValue:   MIDI_VALUE_OFF,
 				controlCode: 32,
 			}),
-			NewCtrlInput("BOOST", machine.GP2, &OneShotSwitch{
+			NewCtrlInput("BST", machine.GP2, &OneShotSwitch{
 				toggle:      true,
 				midiValue:   MIDI_VALUE_OFF,
 				controlCode: 34,
 			}),
-			NewCtrlInput("CHRUS", machine.GP3, &OneShotSwitch{
+			NewCtrlInput("CHRS", machine.GP3, &OneShotSwitch{
 				toggle:      true,
 				midiValue:   MIDI_VALUE_OFF,
 				controlCode: 36,
 			}),
-			NewCtrlInput("COMP", machine.GP0, &OneShotSwitch{
+			NewCtrlInput("COMP", machine.GP4, &OneShotSwitch{
 				toggle:      true,
 				midiValue:   MIDI_VALUE_OFF,
 				controlCode: 38,
@@ -108,7 +115,7 @@ func InitDefaultSwitchBanks() []SwitchBank {
 				midiValue:   MIDI_VALUE_OFF,
 				controlCode: 46,
 			}),
-			NewCtrlInput("N/A", machine.GP0, &OneShotSwitch{
+			NewCtrlInput("N/A", machine.GP4, &OneShotSwitch{
 				toggle:      true,
 				midiValue:   MIDI_VALUE_OFF,
 				controlCode: 48,
