@@ -11,9 +11,9 @@ type Display struct {
 	*hd44780i2c.Device
 }
 
-func (d *Display) WriteOut(s string) {
+func (d *Display) WriteOut(s []byte) {
 	d.ClearDisplay()
-	d.Print([]byte(s))
+	d.Print(s)
 }
 
 func initDisplay() *hd44780i2c.Device {
