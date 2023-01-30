@@ -54,10 +54,10 @@ func InitDefaultSwitchBanks() []SwitchBank {
 			NewCtrlInput("SOLO", machine.GP3, &HoldSwitch{
 				toggleA:      false,
 				midiValueA:   MIDI_VALUE_OFF,
-				controlCodeA: 24,
+				controlCodeA: 26,
 				toggleB:      false,
 				midiValueB:   MIDI_VALUE_OFF,
-				controlCodeB: 25,
+				controlCodeB: 27,
 			}),
 			NewCtrlInput("ARM", machine.GP4, &OneShotSwitch{
 				toggle:      false,
