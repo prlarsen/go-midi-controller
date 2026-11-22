@@ -3,7 +3,9 @@
 The goal for this project is to create a MIDI footswitch controller using the Raspberry Pi Pico programmed in Go using the TinyGo compiler.
 I built a 6 switch controller, but it can easily be expanded or reduced.  It uses an LCD to display labels for each switch. 
 Switch functions are organized into switch banks.  The 6th switch is reserved for selecting the bank.  5 functions per bank.  10 functions if using hold switches. 
-I'm using it with Helix midi codes to be compatible with my OpenRig system.  See openrig.eu for more details. 
+I'm using it with Helix midi codes to be compatible with my OpenRig system.  See openrig.eu for more details.
+
+Note: eeprom.go is not used.  It's there for managing I2C EEPROM devices, which will be useful for building an app to change configurations over Bluetooth. 
 
 ### Switch Types
 - Oneshot: Sends a single control code
