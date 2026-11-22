@@ -25,100 +25,91 @@ type SwitchBank []*CtrlInput
 // These defaults will be used.
 func InitDefaultSwitchBanks() []SwitchBank {
 	return []SwitchBank{
-		// Bank 0
+		// Bank 0: Program/Preset Change
 		{
-			NewCtrlInput("TKSL", machine.GP0, &HoldSwitch{
-				toggleA:      false,
-				midiValueA:   MIDI_VALUE_OFF,
-				controlCodeA: 20,
-				toggleB:      false,
-				midiValueB:   MIDI_VALUE_OFF,
-				controlCodeB: 21,
+			NewCtrlInput("P1", machine.GP0, &ProgramChangeSwitch{0}),
+			NewCtrlInput("P2", machine.GP1, &ProgramChangeSwitch{1}),
+			NewCtrlInput("P3", machine.GP2, &ProgramChangeSwitch{2}),
+			NewCtrlInput("P4", machine.GP3, &ProgramChangeSwitch{3}),
+			NewCtrlInput("P5", machine.GP4, &ProgramChangeSwitch{4}),
+		},
+		// Bank 1: Scene Change
+		{
+			NewCtrlInput("1-2", machine.GP0, &HoldSwitch{
+				midiValueA:   0x00,
+				controlCodeA: 69,
+				midiValueB:   0x01,
+				controlCodeB: 69,
 			}),
-			NewCtrlInput("REC", machine.GP1, &HoldSwitch{
-				toggleA:      false,
-				midiValueA:   MIDI_VALUE_OFF,
-				controlCodeA: 22,
-				toggleB:      false,
-				midiValueB:   MIDI_VALUE_OFF,
-				controlCodeB: 23,
+			NewCtrlInput("3-4", machine.GP1, &HoldSwitch{
+				midiValueA:   0x02,
+				controlCodeA: 69,
+				midiValueB:   0x03,
+				controlCodeB: 69,
 			}),
-			NewCtrlInput("PLAY", machine.GP2, &HoldSwitch{
-				toggleA:      false,
-				midiValueA:   MIDI_VALUE_OFF,
-				controlCodeA: 24,
-				toggleB:      false,
-				midiValueB:   MIDI_VALUE_OFF,
-				controlCodeB: 25,
+			NewCtrlInput("5-6", machine.GP2, &HoldSwitch{
+				midiValueA:   0x04,
+				controlCodeA: 69,
+				midiValueB:   0x05,
+				controlCodeB: 69,
 			}),
-			NewCtrlInput("SOLO", machine.GP3, &HoldSwitch{
-				toggleA:      false,
-				midiValueA:   MIDI_VALUE_OFF,
-				controlCodeA: 26,
-				toggleB:      false,
-				midiValueB:   MIDI_VALUE_OFF,
-				controlCodeB: 27,
+			NewCtrlInput("7-8", machine.GP3, &HoldSwitch{
+				midiValueA:   0x06,
+				controlCodeA: 69,
+				midiValueB:   0x07,
+				controlCodeB: 69,
 			}),
-			NewCtrlInput("ARM", machine.GP4, &OneShotSwitch{
-				toggle:      false,
+			NewCtrlInput("TAP", machine.GP4, &OneShotSwitch{
 				midiValue:   MIDI_VALUE_ON,
-				controlCode: 28,
+				controlCode: 64,
 			}),
 		},
-		// Bank 1
+		// Bank 2: Effects Toggle
 		{
-			NewCtrlInput("DRVE", machine.GP0, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
-				controlCode: 30,
+			NewCtrlInput("OD", machine.GP0, &ToggleSwitch{
+				state:       MIDI_VALUE_OFF,
+				controlCode: 33,
 			}),
-			NewCtrlInput("DLAY", machine.GP1, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
-				controlCode: 32,
-			}),
-			NewCtrlInput("BST", machine.GP2, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
+			NewCtrlInput("DLAY", machine.GP1, &ToggleSwitch{
+				state:       MIDI_VALUE_OFF,
 				controlCode: 34,
 			}),
-			NewCtrlInput("CHRS", machine.GP3, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
+			NewCtrlInput("DIVE", machine.GP2, &ToggleSwitch{
+				state:       MIDI_VALUE_OFF,
+				controlCode: 35,
+			}),
+			NewCtrlInput("MOD", machine.GP3, &ToggleSwitch{
+				state:       MIDI_VALUE_OFF,
 				controlCode: 36,
 			}),
-			NewCtrlInput("COMP", machine.GP4, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
-				controlCode: 38,
+			NewCtrlInput("BST", machine.GP4, &ToggleSwitch{
+				state:       MIDI_VALUE_OFF,
+				controlCode: 37,
 			}),
 		},
-		// Bank 2
+		// Bank 3: Looper
 		{
-			NewCtrlInput("N/A", machine.GP0, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
-				controlCode: 40,
+			NewCtrlInput("REC", machine.GP0, &OneShotSwitch{
+				midiValue:   MIDI_VALUE_ON,
+				controlCode: 60,
 			}),
-			NewCtrlInput("N/A", machine.GP1, &OneShotSwitch{
-				toggle:      true,
+			NewCtrlInput("ODUB", machine.GP1, &OneShotSwitch{
 				midiValue:   MIDI_VALUE_OFF,
-				controlCode: 42,
+				controlCode: 60,
 			}),
-			NewCtrlInput("N/A", machine.GP2, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
-				controlCode: 44,
+			NewCtrlInput("PLAY", machine.GP2, &HoldSwitch{
+				midiValueA:   MIDI_VALUE_ON,
+				controlCodeA: 61,
+				midiValueB:   MIDI_VALUE_OFF,
+				controlCodeB: 61,
 			}),
-			NewCtrlInput("N/A", machine.GP3, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
-				controlCode: 46,
+			NewCtrlInput("UNDO", machine.GP3, &OneShotSwitch{
+				midiValue:   MIDI_VALUE_ON,
+				controlCode: 63,
 			}),
-			NewCtrlInput("N/A", machine.GP4, &OneShotSwitch{
-				toggle:      true,
-				midiValue:   MIDI_VALUE_OFF,
-				controlCode: 48,
+			NewCtrlInput("TAP", machine.GP4, &OneShotSwitch{
+				midiValue:   MIDI_VALUE_ON,
+				controlCode: 64,
 			}),
 		},
 	}
